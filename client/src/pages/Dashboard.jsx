@@ -40,9 +40,9 @@ function Dashboard() {
       url: 'https://preview.redd.it/say-something-bad-about-shanks-and-ill-rate-your-opinion-v0-74sxm8o68kzb1.jpg?auto=webp&s=73494645deffdbba60a26e34d96e520c605de53f',
     },
     {
-      name: 'Dinesh Chugtai',
-      age: 29,
-      bio: 'well i made the shit so ofcourse i will be first to pop up.',
+      name: 'Aryan Tak',
+      age: 20,
+      bio: 'well i made this shit so ofcourse i will be first to pop up.',
       topArtists: ['Artist M', 'Artist N', 'Artist O'],
       musicMatch: '82%',
       url: 'https://s1.zerochan.net/Shanks.600.3701953.jpg',
