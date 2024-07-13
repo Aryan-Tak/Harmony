@@ -2,7 +2,7 @@ import React from 'react';
 
 function Navbar({ onChatClick }) {
   return (
-    <nav className="flex justify-between items-center p-4 bg-indigo-600 text-white">
+    <nav className="flex justify-between items-center p-4 bg-[#cef564] text-white">
       <div className="text-2xl font-bold lg:block hidden">H</div>
       <button className="lg:hidden block text-2xl font-bold" onClick={onChatClick}>
         Chat
