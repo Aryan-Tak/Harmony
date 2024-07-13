@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import conf from '../conf/conf';
-const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${conf.clientId}&response_type=code&scope=user-top-read&redirect_uri=http://localhost:5173/callback`;
+const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${conf.clientId}&response_type=code&scope=user-top-read&redirect_uri=http://localhost:5173/onboarding`;
 
-function Login() {
+function Login({code}) {
   return (
     <div className='flex flex-col justify-center items-center min-h-screen bg-cover bg-center' style={{ backgroundImage: "url('https://us.123rf.com/450wm/austler/austler2404/austler240400931/228758950-vector-illustration-of-a-boy-and-girl-listening-to-music-with-headphones.jpg?ver=6')" }}>
       <div className='bg-opacity-75  p-6 rounded-lg shadow-lg text-center'>

@@ -1,12 +1,11 @@
 import React from 'react'
 import Login from '../components/Login'
+import OnBoarding from './OnBoarding';
 
+
+const code = new URLSearchParams(window.location.search).get('code');
 function Home() {
-    return (
-        <div className=''>
-            <Login />
-        </div>
-    )
+    return <Login code={code} />
 }
 
 export default Home

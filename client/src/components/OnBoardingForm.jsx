@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function OnboardingForm() {
+function OnboardingForm({ code }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -37,7 +37,9 @@ function OnboardingForm() {
   };
 
   return (
+    
     <div className="flex justify-center items-center min-h-screen bg-[#ffc564] p-6">
+      <div>{code}</div>
       <form
         className="bg-[#ffffffc8] p-6 rounded-lg shadow-lg w-full max-w-4xl neumorphism"
         onSubmit={handleSubmit}
