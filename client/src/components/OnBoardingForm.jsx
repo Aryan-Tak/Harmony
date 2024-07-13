@@ -42,7 +42,7 @@ function OnboardingForm() {
         className="bg-[#ffffffc8] p-6 rounded-lg shadow-lg w-full max-w-4xl neumorphism"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">Welcome to Beatbuddy!</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">Welcome to Harmony!</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
             <div className="mb-4 neumorphism-input">
@@ -90,7 +90,6 @@ function OnboardingForm() {
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
-                <option value="other">Other</option>
               </select>
             </div>
             <div className="mb-4 neumorphism-input">
@@ -129,7 +128,7 @@ function OnboardingForm() {
         </div>
         <button
           type="submit"
-          className="w-full p-2 bg-blue-500 text-white rounded font-bold neumorphism-input"
+          className="w-full p-2 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded font-bold neumorphism-input"
         >
           Create Account
         </button>
