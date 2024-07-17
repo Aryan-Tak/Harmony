@@ -10,8 +10,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-(async () => {
-    // URI examples: 'neo4j://localhost', 'neo4j+s://xxx.databases.neo4j.io'
+const dbfunc = (async () => {
+    
     const URI = 'bolt://localhost:7687'
     const USER = 'neo4j'
     const PASSWORD = 'harmony123'
@@ -25,7 +25,8 @@ app.use(bodyParser.json());
     } catch(err) {
       console.log(`Connection error\n${err}\nCause: ${err.cause}`)
     }
-  })();
+  })
+  dbfunc();
 
 app.post('/onboarding', (req, res) => {
     const code = req.body.code;

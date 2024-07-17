@@ -7,21 +7,22 @@ import Login from '../components/Login';
 function OnBoarding() {
     const code = new URLSearchParams(window.location.search).get('code');
     const { accessToken, isAuthenticated } = UseAuth(code);
-    const [topTracks, setTopTracks] = useState([]);
+    const [topArtists, setTopArtists] = useState([]);
 
     useEffect(() => {
         if (!accessToken) return;
 
-        axios.get('https://api.spotify.com/v1/me/top/tracks', {
+        axios.get('https://api.spotify.com/v1/me/top/artists?limit=50', {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
         })
         .then(res => {
-            setTopTracks(res.data.items);
+            setTopArtists(res.data.items);
+            console.log('Top artists:', res.data.items);
         })
         .catch(err => {
-            console.error('Error fetching top tracks:', err);
+            console.error('Error fetching top artists:', err);
         });
     }, [accessToken]);
 
