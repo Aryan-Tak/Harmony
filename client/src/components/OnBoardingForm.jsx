@@ -33,6 +33,7 @@ function OnboardingForm({ code }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Add account creation logic here
+    
     console.log(formData);
   };
 
