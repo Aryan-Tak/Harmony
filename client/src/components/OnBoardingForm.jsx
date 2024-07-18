@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 function OnboardingForm({ code }) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,9 +34,31 @@ function OnboardingForm({ code }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    // Add account creation logic here
+    try {
+      const { data } = await axios.get(`http://localhost:5174/onboarding?{code}`);
+      const spotifyId = data.id;
+      const userData = new FormData();
+      userData.append('firstName', formData.firstName);
+      userData.append('lastName', formData.lastName);
+      userData.append('dob', formData.dob);
+      userData.append('gender', formData.gender);
+      userData.append('bio', formData.bio);
+      userData.append('spotifyId', spotifyId);
+      userData.append('photo', formData.photo);
+
+      await axios.post('http://localhost:5174/onboarding', userData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Account created successfully');
+      navigate('/dashboard');
+    } catch (error) {
+      console.log('Error in Account Creation Form', error);
+    }
     
     console.log(formData);
   };

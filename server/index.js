@@ -6,13 +6,36 @@ const bodyParser = require('body-parser');
 const neo4j = require('neo4j-driver');
 require('dotenv').config();
 
+
+const { dbfunc , createUser} = require('./db');
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
+// File upload configuration
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    },
+});
 
+const uplode = multer({
+    storage: storage,
+    limits: { fileSize: 1024 * 1024 * 2 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+          cb(null, true);
+        } else {
+          cb(new Error('Invalid file type. Only JPEG and PNG are allowed.'), false);
+        }
+      },
+})
 
 
 // Spotify API Setup
@@ -44,6 +67,25 @@ app.post('/onboarding', (req, res) => {
     });
 });
 
+
+// DataBase Connection 
+
+dbfunc().catch(error => {
+    console.error('Error in dbfunc:', error);
+    process.exit(1);
+});
+
+// User creation endpoint
+app.post('/onboarding', async (req, res) => {
+    try {
+      const user = await createUser(req.body);
+      res.status(200).json({ message: 'Account created successfully', user });
+    } catch (error) {
+      res.status(400).json({ error: 'Error creating account' });
+    }
+  });
+
+// Server setup
 app.listen(5174, () => {
     console.log('Server running on port 5174');
 });
