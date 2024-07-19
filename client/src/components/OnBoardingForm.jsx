@@ -36,31 +36,45 @@ function OnboardingForm({ code }) {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
+    const data = new FormData();
+    for ( const key in formData){
+      data.append(key, formData[key]);
+    }
     try {
-      const { data } = await axios.get(`http://localhost:5174/onboarding?{code}`);
-      const spotifyId = data.id;
-      const userData = new FormData();
-      userData.append('firstName', formData.firstName);
-      userData.append('lastName', formData.lastName);
-      userData.append('dob', formData.dob);
-      userData.append('gender', formData.gender);
-      userData.append('bio', formData.bio);
-      userData.append('spotifyId', spotifyId);
-      userData.append('photo', formData.photo);
+      // const { data } = await axios.post(`http://localhost:5174/onboarding` , { code });
+      // const spotifyId = data.id;
+      // console.log(`User created with Spotify ID: ${spotifyId}`);
+      // const user = new FormData();
+      // user.append('firstName', formData.firstName);
+      // user.append('lastName', formData.lastName);
+      // user.append('dob', formData.dob);
+      // user.append('gender', formData.gender);
+      // user.append('bio', formData.bio);
+      // // userData.append('spotifyId', spotifyId);
+      // user.append('photo', formData.photo);
 
-      await axios.post('http://localhost:5174/onboarding', userData, {
+      const response = await axios.post('http://localhost:5174/onboarding', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      console.log('Account created successfully');
-      navigate('/dashboard');
+      if (response.status === 200) {
+        console.log('Account created successfully');
+        navigate('/dashboard');
+      } else {
+        console.log('Error creating account');
+      }
+
+      // console.log('Account created successfully');
+      // navigate('/dashboard');
     } catch (error) {
+      
       console.log('Error in Account Creation Form', error);
     }
     
     console.log(formData);
+    
   };
 
   return (

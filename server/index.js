@@ -10,40 +10,49 @@ require('dotenv').config();
 const { dbfunc , createUser} = require('./db');
 const app = express();
 
+const URI = process.env.NEO4J_URI;
+const USER = process.env.NEO4J_USERNAME;
+const PASSWORD = process.env.NEO4J_PASSWORD;
+
+const driver = neo4j.driver(URI , neo4j.auth.basic(USER , PASSWORD));
+
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // File upload configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
-});
 
-const uplode = multer({
-    storage: storage,
-    limits: { fileSize: 1024 * 1024 * 2 },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-          cb(null, true);
-        } else {
-          cb(new Error('Invalid file type. Only JPEG and PNG are allowed.'), false);
-        }
-      },
-})
+
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'uploads/');
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, Date.now() + path.extname(file.originalname));
+//     },
+// });
+
+// const uplode = multer({
+//     storage: storage,
+//     limits: { fileSize: 1024 * 1024 * 2 },
+//     fileFilter: (req, file, cb) => {
+//         if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+//           cb(null, true);
+//         } else {
+//           cb(new Error('Invalid file type. Only JPEG and PNG are allowed.'), false);
+//         }
+//       },
+// })
 
 
 // Spotify API Setup
 
 app.post('/onboarding', (req, res) => {
     const code = req.body.code;
-    // console.log('Received authorization code:', code);
-    // console.log('clientSecret' ,process.env.SPOTIFY_CLIENT_SECRET)
+    console.log('Received authorization code:', code);
+
 
     const spotifyApi = new SpotifyWebApi({
         redirectUri: 'http://localhost:5173/onboarding',
@@ -52,9 +61,9 @@ app.post('/onboarding', (req, res) => {
     });
 
     spotifyApi.authorizationCodeGrant(code).then(data => {
-        // console.log('Access token:', data.body.access_token);
-        // console.log('Refresh token:', data.body.refresh_token);
-        // console.log('Expires in:', data.body.expires_in);
+        console.log('Access token:', data.body.access_token);
+        console.log('Refresh token:', data.body.refresh_token);
+        console.log('Expires in:', data.body.expires_in);
 
         res.json({
             accessToken: data.body.access_token,
@@ -68,22 +77,50 @@ app.post('/onboarding', (req, res) => {
 });
 
 
+const upload = multer({ dest: 'uploads/'});
+
+app.post('/onboarding' , upload.single('photo') , async (req, res) => {
+    const { firstname , lastname , dob , gender , bio} = req.body;
+    // const photo = req.file.filename;
+    const session = driver.session();
+    console.log('Connected to Neo4j');
+    try {
+        await session.run(
+            `CREATE (USER:Person {
+                firstname: $firstname,
+                lastname: $lastname,
+                dob: $dob,
+                gender: $gender,
+                bio: $bio
+                }) RETURN USER`,
+            { firstname , lastname , dob , gender , bio ,}
+        );
+        res.status(200).send('Account created successfully');
+        
+    } catch (error) {
+        console.log('Error in createUser:', error);
+        res.status(500).json({ error: 'Error creating account' });   
+    }finally {
+        await session.close(); // Ensure the session is closed
+    }
+})
+
 // DataBase Connection 
 
-dbfunc().catch(error => {
-    console.error('Error in dbfunc:', error);
-    process.exit(1);
-});
+// dbfunc().catch(error => {
+//     console.error('Error in dbfunc:', error);
+//     process.exit(1);
+// });
 
 // User creation endpoint
-app.post('/onboarding', async (req, res) => {
-    try {
-      const user = await createUser(req.body);
-      res.status(200).json({ message: 'Account created successfully', user });
-    } catch (error) {
-      res.status(400).json({ error: 'Error creating account' });
-    }
-  });
+// app.post('/onboarding', uplode.single('photo') , async (req, res) => {
+//     try {
+//       const user = await createUser(req.body);
+//       res.status(200).json({ message: 'Account created successfully', user });
+//     } catch (error) {
+//       res.status(400).json({ error: 'Error creating account' });
+//     }
+//   });
 
 // Server setup
 app.listen(5174, () => {
