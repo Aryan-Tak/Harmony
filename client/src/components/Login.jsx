@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import conf from '../conf/conf';
-const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${conf.clientId}&response_type=code&scope=user-top-read%20user-read-email%20user-read-private&redirect_uri=http://localhost:5173/onboarding`;
+// const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${conf.clientId}&response_type=code&scope=user-top-read%20user-read-email%20user-read-private&redirect_uri=http://localhost:5173/onboarding`;
+const AUTH_URL = 'http://localhost:5174/login';
 
 
 function Login({code}) {
