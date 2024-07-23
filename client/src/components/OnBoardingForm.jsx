@@ -34,24 +34,30 @@ function OnboardingForm() {
     }
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/onboard' , {
+      const formDataToSend = new FormData();
+      for (const key in formData) {
+        formDataToSend.append(key, formData[key]);
+      }
+
+      const response = await fetch('http://localhost:5174/profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
       });
-      const data = await response.json();
-      console.log(data);
+
+      if (response.ok) {
+        console.log('Profile created successfully');
+        navigate('/dashboard'); // navigate to the dashboard or any other route
+      } else {
+        console.log('Error creating profile');
+      }
     } catch (error) {
-      console.log('Error Submitting Form' , error);
+      console.log('Error Submitting Form', error);
     }
-    
+
     console.log(formData);
-    
   };
 
   return (
