@@ -75,12 +75,34 @@ app.get('/callback' , (req , res) => {
                 const access_token = body.access_token;
                 const refresh_token = body.refresh_token;
 
-                console.log('Access Token:', access_token);
-                console.log('Refresh Token:', refresh_token);
-
-                res.json({
-                    
-                });   
+                // console.log('Access Token:', access_token);
+                // console.log('Refresh Token:', refresh_token);
+                const userOptions = {
+                    url: 'https://api.spotify.com/v1/me',
+                    headers: { Authorization: `Bearer ${access_token}` },
+                    json: true,
+                };
+                request.get(userOptions , (error , response , body) => {
+                  if(!error && response.statusCode === 200){
+                    const spotifyUserId = body.id;
+                    console.log('Spotify User Id:', spotifyUserId);
+                  }
+                  
+                  const topArtists = {
+                    url : `https://api.spotify.com/v1/me/top/artists?limit=50`,
+                    headers: { Authorization: `Bearer ${access_token}` },
+                    json: true,
+                  };
+                  request.get(topArtists , (error , response , body) => {
+                    if(!error && response.statusCode === 200){
+                       const topArtists = body.items;
+                      console.log('Top Artists: Obtained');
+                    } else {
+                      console.error('Error fetching top artists:', error);
+                    }
+                  });
+                })
+                res.redirect(`http://localhost:5173/onboarding`);   
             } else {
                 res.status(response.statusCode).json({
                     error: 'Failed to get tokens'

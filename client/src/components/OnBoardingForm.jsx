@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 
-function OnboardingForm({ code }) {
+function OnboardingForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
@@ -36,41 +36,18 @@ function OnboardingForm({ code }) {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    const data = new FormData();
-    for ( const key in formData){
-      data.append(key, formData[key]);
-    }
     try {
-      // const { data } = await axios.post(`http://localhost:5174/onboarding` , { code });
-      // const spotifyId = data.id;
-      // console.log(`User created with Spotify ID: ${spotifyId}`);
-      // const user = new FormData();
-      // user.append('firstName', formData.firstName);
-      // user.append('lastName', formData.lastName);
-      // user.append('dob', formData.dob);
-      // user.append('gender', formData.gender);
-      // user.append('bio', formData.bio);
-      // // userData.append('spotifyId', spotifyId);
-      // user.append('photo', formData.photo);
-
-      const response = await axios.post('http://localhost:5174/onboarding', data, {
+      const response = await fetch('/api/onboard' , {
+        method: 'POST',
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(formData),
       });
-
-      if (response.status === 200) {
-        console.log('Account created successfully');
-        navigate('/dashboard');
-      } else {
-        console.log('Error creating account');
-      }
-
-      // console.log('Account created successfully');
-      // navigate('/dashboard');
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
-      
-      console.log('Error in Account Creation Form', error);
+      console.log('Error Submitting Form' , error);
     }
     
     console.log(formData);
@@ -80,7 +57,6 @@ function OnboardingForm({ code }) {
   return (
     
     <div className="flex justify-center items-center min-h-screen bg-[#ffc564] p-6">
-      <div>{code}</div>
       <form
         className="bg-[#ffffffc8] p-6 rounded-lg shadow-lg w-full max-w-4xl neumorphism"
         onSubmit={handleSubmit}
