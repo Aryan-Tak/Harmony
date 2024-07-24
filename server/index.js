@@ -8,6 +8,7 @@ const path = require('path');
 const history = require('connect-history-api-fallback');
 const neo4j = require('neo4j-driver');
 const multer = require('multer');
+const session = require('express-session');
 
 const upload = multer({ dest: 'uploads/'});
 
@@ -18,6 +19,7 @@ const NEO4J_URI = process.env.NEO4J_URI;
 const NEO4J_USERNAME = process.env.NEO4J_USERNAME;
 const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD;
 const PORT = process.env.PORT;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 const generateRandomString = length => {
     let text = '';
@@ -34,6 +36,12 @@ const app = express();
 app.use(cors())
 app.use(cookieParser());
 app.use(express.json()); 
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false}
+}));
 
 const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 
@@ -97,6 +105,7 @@ app.get('/callback', (req, res) => {
                   if (!error && response.statusCode === 200) {
                       const spotifyUserId = body.id;
                       console.log('Spotify User Id:', spotifyUserId);
+                      req.session.spotifyUserId = spotifyUserId;
 
                       try {
                           const userResult = await driver.executeQuery(
@@ -151,7 +160,19 @@ app.get('/callback', (req, res) => {
 
 app.post('/profile', upload.single('photo'), async (req, res) => {
   const { firstName, lastName, dob, bio, gender } = req.body;
-
+//   const spotifyUserId = req.session.spotifyUserId;
+//   console.log('Session Data:', req.session);
+const userOptions = {
+    url: 'https://api.spotify.com/v1/me',
+    headers: { Authorization: `Bearer ${access_token}` },
+    json: true,
+};
+request.get(userOptions, async (error, response, body) => {
+    if (!error && response.statusCode === 200) {
+        const spotifyUserId = body.id;}
+    if (!spotifyUserId) {
+        return res.status(400).json({ error: 'Spotify ID not found in session' });
+    }
   try {
       const userResult = await driver.executeQuery(
           'MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u',
@@ -163,8 +184,8 @@ app.post('/profile', upload.single('photo'), async (req, res) => {
       } else {
           const photoPath = req.file.path;
           await driver.executeQuery(
-              'CREATE (u:User { firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
-              {  firstName, lastName, dob, bio, gender, photoPath }
+              'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
+              { spotifyUserId,  firstName, lastName, dob, bio, gender, photoPath }
           );
           res.status(201).send('User profile created');
       }
@@ -199,6 +220,7 @@ app.get('/refresh_token', function (req, res) {
       }
     });
   });
+});
 
 app.listen(PORT , () => {
     console.log(`Server is running on port ${PORT}`);
