@@ -10,6 +10,7 @@ function OnboardingForm() {
     lastName: '',
     dob: '',
     gender: '',
+    interest: '',
     bio: '',
     photo: null,
   });
@@ -112,7 +113,21 @@ function OnboardingForm() {
                 className="mt-1 p-2 w-full border-none rounded neumorphism-input"
                 required
               >
-                <option value="">Select Gender</option>
+                <option value="">Select Your Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div className="mb-4 neumorphism-input">
+              <label className="block text-gray-700">Your Interest</label>
+              <select
+                name="interest"
+                value={formData.interest}
+                onChange={handleChange}
+                className="mt-1 p-2 w-full border-none rounded neumorphism-input"
+                required
+              >
+                <option value="">Select People You Want to Meet!</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>

@@ -89,7 +89,6 @@ app.get('/callback', (req, res) => {
           },
           json: true,
       };
-
       request.post(authOptions, (error, response, body) => {
           if (!error && response.statusCode === 200) {
               const access_token = body.access_token;
@@ -127,6 +126,9 @@ app.get('/callback', (req, res) => {
                                       const topArtists = body.items;
                                       console.log('Top Artists: Obtained');
 
+                                      res.redirect(`http://localhost:5173/onboarding`);
+
+
                                       for (const artist of topArtists) {
                                           await driver.executeQuery(
                                               `MERGE (a:Artist {spotifyId: $spotifyId, name: $name})`,
@@ -134,7 +136,7 @@ app.get('/callback', (req, res) => {
                                           );
                                       }
 
-                                      res.redirect(`http://localhost:5173/onboarding`);
+                                    //   res.redirect(`http://localhost:5173/onboarding`);
                                       
                                   } else {
                                       console.error('Error fetching top artists:', error);

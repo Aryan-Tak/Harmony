@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import conf from '../conf/conf';
-// const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${conf.clientId}&response_type=code&scope=user-top-read%20user-read-email%20user-read-private&redirect_uri=http://localhost:5173/onboarding`;
 const AUTH_URL = 'http://localhost:5174/login';
 
 
@@ -11,7 +9,10 @@ function Login({code}) {
       <div className='bg-opacity-75  p-6 rounded-lg shadow-lg text-center'>
         <h1 className='font-mono font-medium text-4xl mb-4'>Harmony</h1>
         <p className='font-mono font-medium text-2xl mb-8'>Find people based on your music interest</p>
-        <Link to={AUTH_URL} className='p-3 bg-black rounded-full text-white font-bold'>SignUp with Spotify</Link>
+        <div className='flex justify-around'>
+          <Link to={AUTH_URL} className='p-3 bg-black rounded-full text-white font-bold hover:bg-white hover:text-black'>Create Your Harmony</Link>
+          <Link className='p-3 bg-black rounded-full text-white font-bold hover:bg-white hover:text-black'>Continue the Groove</Link>
+        </div>
       </div>
     </div>
   );
