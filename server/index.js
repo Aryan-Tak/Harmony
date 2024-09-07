@@ -131,8 +131,8 @@ app.get('/callback', (req, res) => {
 
                                       for (const artist of topArtists) {
                                           await driver.executeQuery(
-                                              `MERGE (a:Artist {spotifyId: $spotifyId, name: $name})`,
-                                              { spotifyId: artist.id, name: artist.name }
+                                              `MERGE (a:Artist {spotifyId: $spotifyId, name: $name , genres: $genres})`,
+                                              { spotifyId: artist.id, name: artist.name , genres: artist.genres }
                                           );
                                       }
 
