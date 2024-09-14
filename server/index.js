@@ -9,8 +9,11 @@ const history = require('connect-history-api-fallback');
 const neo4j = require('neo4j-driver');
 const multer = require('multer');
 const session = require('express-session');
+const sdk = require('node-appwrite');
+const fs = require('fs');
+const fileUpload = require('express-fileupload');
 
-const upload = multer({ dest: 'uploads/'});
+
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -43,9 +46,16 @@ app.use(session({
     cookie: { secure: false}
 }));
 
+// Neo4j setUp
 const driver = neo4j.driver(NEO4J_URI, neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD));
 
+// Appwrite Setup
+const client = new sdk.Client()
+    .setEndpoint(process.env.APPWRITE_ENDPOINT)
+    .setProject(process.env.APPWRITE_PROJECTID)
+    .setSession('')
 
+const storage = new sdk.Storage(client)
 
 app.get('/' , (req , res) => {
     res.render(path.resolve(__dirname, '../client/index.html'));
@@ -160,41 +170,42 @@ app.get('/callback', (req, res) => {
   }
 });
 
-app.post('/profile', upload.single('photo'), async (req, res) => {
+app.post('/profile', async (req, res) => {
+  if (!req.files || Object.keys(req.files).length === 0){
+    return res.status(400).send('No files were uploaded.');
+  }  
   const { firstName, lastName, dob, bio, gender } = req.body;
-//   const spotifyUserId = req.session.spotifyUserId;
-//   console.log('Session Data:', req.session);
-const userOptions = {
-    url: 'https://api.spotify.com/v1/me',
-    headers: { Authorization: `Bearer ${access_token}` },
-    json: true,
-};
-request.get(userOptions, async (error, response, body) => {
-    if (!error && response.statusCode === 200) {
-        const spotifyUserId = body.id;}
-    if (!spotifyUserId) {
-        return res.status(400).json({ error: 'Spotify ID not found in session' });
-    }
-  try {
-      const userResult = await driver.executeQuery(
-          'MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u',
-          { spotifyUserId }
-      );
+  const image = req.files.photo;    
 
-      if (userResult.records.length > 0) {
+
+  try {
+
+    const userProfile = await storage.createFile(
+        process.env.APPWRITE_BUCKETID,
+        ID.unique(),
+        InputFile.fromBuffer(buffer,image.data , image.name)
+    );
+    const userResult = await driver.executeQuery(
+        'MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u',
+        { spotifyUserId }
+    );
+    
+    
+
+    if (userResult.records.length > 0) {
           res.status(400).json({ error: 'User already exists' });
-      } else {
-          const photoPath = req.file.path;
-          await driver.executeQuery(
-              'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
-              { spotifyUserId,  firstName, lastName, dob, bio, gender, photoPath }
+    } else {
+        const photoPath = req.file.path;
+        await driver.executeQuery(
+          'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
+          { spotifyUserId,  firstName, lastName, dob, bio, gender, photoPath }
           );
-          res.status(201).send('User profile created');
+        res.status(201).send('User profile created');
       }
       
   } catch (err) {
-      console.error('Error saving user profile:', err);
-      res.status(500).send('Internal Server Error');
+    console.error('Error saving user profile:', err);
+    res.status(500).send('Internal Server Error');
   } 
 });
 
@@ -222,7 +233,7 @@ app.get('/refresh_token', function (req, res) {
       }
     });
   });
-});
+
 
 app.listen(PORT , () => {
     console.log(`Server is running on port ${PORT}`);
