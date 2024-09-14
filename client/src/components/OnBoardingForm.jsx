@@ -43,14 +43,14 @@ function OnboardingForm() {
         formDataToSend.append(key, formData[key]);
       }
 
-      const response = await fetch('http://localhost:5174/profile', {
+      const response = await fetch('http://localhost:5174/callback', {
         method: 'POST',
         body: formDataToSend,
       });
 
       if (response.ok) {
         console.log('Profile created successfully');
-        navigate('/dashboard'); // navigate to the dashboard or any other route
+        navigate('/dashboard'); 
       } else {
         console.log('Error creating profile');
       }

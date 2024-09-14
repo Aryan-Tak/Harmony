@@ -146,12 +146,12 @@ function Dashboard() {
               >
                 <i className="fa-solid fa-x"></i>
               </button>
-              <button
+              {/* <button
                 className={`flex-shrink-0 p-2.5 rounded-full border-none text-white text-lg bg-indigo-300 transition duration-200 m-2.5 font-extrabold w-16 h-16 shadow-xl ${!canGoBack && 'bg-gray-300'}`}
                 onClick={() => goBack()}
               >
                 <i className="fa-solid fa-rotate-right"></i>
-              </button>
+              </button> */}
               <button
                 className={`flex-shrink-0 p-2.5 rounded-full border-none text-white text-lg bg-indigo-300 transition duration-200 m-2.5 font-extrabold w-16 h-16 shadow-xl ${!canSwipe && 'bg-gray-300'}`}
                 onClick={() => swipe('right')}

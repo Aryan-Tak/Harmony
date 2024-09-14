@@ -36,7 +36,11 @@ const generateRandomString = length => {
 const stateKey = 'spotify_auth_state';
 
 const app = express();
-app.use(cors())
+app.use(cors({ origin: 'http://localhost:5174/callback',
+    methods: 'GET,POST,PUT,DELETE',  
+  credentials: true,
+ }));
+ 
 app.use(cookieParser());
 app.use(express.json()); 
 app.use(session({
@@ -85,7 +89,9 @@ app.get('/callback', (req, res) => {
 
   if (state === null || state !== storedState) {
       res.redirect(`/#${querystring.stringify({ error: 'state_mismatch' })}`);
-  } else {
+  } 
+//   complete in else block
+  else {
       res.clearCookie(stateKey);
       const authOptions = {
           url: 'https://accounts.spotify.com/api/token',
@@ -99,6 +105,7 @@ app.get('/callback', (req, res) => {
           },
           json: true,
       };
+    //   Got the access token and refresh token in if block
       request.post(authOptions, (error, response, body) => {
           if (!error && response.statusCode === 200) {
               const access_token = body.access_token;
@@ -120,7 +127,9 @@ app.get('/callback', (req, res) => {
                           const userResult = await driver.executeQuery(
                               `MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u`,
                               { spotifyUserId }
-                          );
+                          );  
+                        //   till here sign up is being check
+                        // now new user is being created
 
                           if (userResult.records.length > 0) {
                               res.redirect(`http://localhost:5173/dashboard`);
@@ -145,6 +154,27 @@ app.get('/callback', (req, res) => {
                                               { spotifyId: artist.id, name: artist.name , genres: artist.genres }
                                           );
                                       }
+                                    //   user data is being stored in neo4j
+                                    const { firstName, lastName, dob, bio, gender } = req.body;
+                                    const image = req.files.photo;
+
+                                    if(!image){
+                                        return res.status(400).send('No Photo')
+                                    }
+                                    const userProfile = await storage.createFile(
+                                        process.env.APPWRITE_BUCKETID,
+                                        '66dca10e003b1eef5caa',
+                                        ID.unique(),
+                                        InputFile.fromBuffer(buffer,image.data , image.name)
+                                    );
+
+                                    const photoPath = userProfile.fileId;
+                                    await driver.executeQuery(
+                                        'CREATE (u:User {spotifyId: $spotifyUserId, firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
+                                        { spotifyUserId, firstName, lastName, dob, bio, gender, photoPath }
+                                    );
+
+
 
                                     //   res.redirect(`http://localhost:5173/onboarding`);
                                       
@@ -170,44 +200,45 @@ app.get('/callback', (req, res) => {
   }
 });
 
-app.post('/profile', async (req, res) => {
-  if (!req.files || Object.keys(req.files).length === 0){
-    return res.status(400).send('No files were uploaded.');
-  }  
-  const { firstName, lastName, dob, bio, gender } = req.body;
-  const image = req.files.photo;    
+// app.post('/profile', async (req, res) => {
+//   if (!req.files || Object.keys(req.files).length === 0){
+//     return res.status(400).send('No files were uploaded.');
+//   }  
+//   const { firstName, lastName, dob, bio, gender } = req.body;
+//   const image = req.files.photo;    
 
 
-  try {
+//   try {
 
-    const userProfile = await storage.createFile(
-        process.env.APPWRITE_BUCKETID,
-        ID.unique(),
-        InputFile.fromBuffer(buffer,image.data , image.name)
-    );
-    const userResult = await driver.executeQuery(
-        'MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u',
-        { spotifyUserId }
-    );
+//     const userProfile = await storage.createFile(
+//         process.env.APPWRITE_BUCKETID,
+//         '66dca10e003b1eef5caa',
+//         ID.unique(),
+//         InputFile.fromBuffer(buffer,image.data , image.name)
+//     );
+//     const userResult = await driver.executeQuery(
+//         'MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u',
+//         { spotifyUserId }
+//     );
     
     
 
-    if (userResult.records.length > 0) {
-          res.status(400).json({ error: 'User already exists' });
-    } else {
-        const photoPath = req.file.path;
-        await driver.executeQuery(
-          'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
-          { spotifyUserId,  firstName, lastName, dob, bio, gender, photoPath }
-          );
-        res.status(201).send('User profile created');
-      }
+//     if (userResult.records.length > 0) {
+//           res.status(400).json({ error: 'User already exists' });
+//     } else {
+//         const photoPath = req.file.path;
+//         await driver.executeQuery(
+//           'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
+//           { spotifyUserId,  firstName, lastName, dob, bio, gender, photoPath }
+//           );
+//         res.status(201).send('User profile created');
+//       }
       
-  } catch (err) {
-    console.error('Error saving user profile:', err);
-    res.status(500).send('Internal Server Error');
-  } 
-});
+//   } catch (err) {
+//     console.error('Error saving user profile:', err);
+//     res.status(500).send('Internal Server Error');
+//   } 
+// });
 
 app.get('/refresh_token', function (req, res) {
     // requesting access token from refresh token
