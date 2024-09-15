@@ -173,6 +173,13 @@ function OnboardingForm() {
           Create Account
         </button>
       </form>
+      {/* <button
+          onClick={handleSubmit}
+          type="submit"
+          className="w-full p-2 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded font-bold neumorphism-input"
+        >
+          Create Account
+      </button> */}
     </div>
   );
 }
