@@ -9,6 +9,7 @@ function OnboardingForm() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    spotifyUserId: '',
     dob: '',
     gender: '',
     interest: '',
@@ -44,7 +45,7 @@ function OnboardingForm() {
         formDataToSend.append(key, formData[key]);
       }
 
-      const response = await fetch('http://localhost:5174/callback', {
+      const response = await fetch('http://localhost:5174/profile', {
         method: 'POST',
         body: formDataToSend,
       });
@@ -106,6 +107,18 @@ function OnboardingForm() {
                 type="text"
                 name="lastName"
                 value={formData.lastName}
+                onChange={handleChange}
+                className="mt-1 p-2 w-full border-none rounded neumorphism-input"
+                required
+              />
+            </div>
+            <div className="mb-4 neumorphism-input">
+              <label className="block text-gray-700">Spotify Id</label>
+              <input
+                type="text"
+                name="spotifyUserId"
+                disabled
+                value={localStorage.getItem('spotifyId')}
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border-none rounded neumorphism-input"
                 required

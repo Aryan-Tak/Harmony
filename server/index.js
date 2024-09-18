@@ -164,30 +164,7 @@ app.get('/callback', (req, res) => {
                                               { spotifyId: artist.id, name: artist.name , genres: artist.genres }
                                           );
                                       }
-                                    //   user data is being stored in neo4j
-                                    // const { firstName, lastName, dob, bio, gender } = req.body;
-                                    // const image = req.files.photo;
 
-                                    // if(!image){
-                                    //     return res.status(400).send('No Photo')
-                                    // }
-                                    // const buffer = image.data;
-                                    // const userProfile = await storage.createFile(
-                                    //     process.env.APPWRITE_BUCKETID,
-                                    //     '66dca10e003b1eef5caa',
-                                    //     ID.unique(),
-                                    //     InputFile.fromBuffer(buffer,image.data , image.name)
-                                    // );
-
-                                    // const photoPath = userProfile.fileId;
-                                    // await driver.executeQuery(
-                                    //     'CREATE (u:User {spotifyId: $spotifyUserId, firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
-                                    //     { spotifyUserId, firstName, lastName, dob, bio, gender, photoPath }
-                                    // );
-
-
-
-                                    //   res.redirect(`http://localhost:5173/onboarding`);
                                       
                                   } else {
                                       console.error('Error fetching top artists:', error);
@@ -215,7 +192,7 @@ app.post('/profile', async (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0){
     return res.status(400).send('No files were uploaded.');
   }  
-  const { firstName, lastName, dob, bio, gender } = req.body;
+  const { firstName, lastName, spotifyUserId , dob, bio, gender } = req.body;
   const image = req.files.photo;    
 
 
@@ -224,7 +201,7 @@ app.post('/profile', async (req, res) => {
     const userProfile = await storage.createFile(
         process.env.APPWRITE_BUCKETID,
         '66dca10e003b1eef5caa',
-        ID.unique(),
+        Math.random().toString(8),
         InputFile.fromBuffer(buffer,image.data , image.name)
     );
     const userResult = await driver.executeQuery(
