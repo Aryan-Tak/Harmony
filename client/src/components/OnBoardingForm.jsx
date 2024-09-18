@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , useLocation} from 'react-router-dom';
 
 
 function OnboardingForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -60,6 +61,23 @@ function OnboardingForm() {
 
     console.log(formData);
   };
+ 
+
+  useEffect(() => {
+
+    const queryParams = new URLSearchParams(location.search);
+    const spotifyId = queryParams.get('spotifyId');
+    const topArtists = JSON.parse(decodeURIComponent(queryParams.get('topArtists')));
+
+
+    if (spotifyId && topArtists) {
+      localStorage.setItem('spotifyId', spotifyId);
+      localStorage.setItem('topArtists', JSON.stringify(topArtists));
+      navigate('/onboarding', { replace: true }); 
+    }
+    console.log('Stored Spotify ID:', localStorage.getItem('spotifyId'));
+    console.log('Stored Top Artists:', JSON.parse(localStorage.getItem('topArtists')));
+  }, [location , navigate]);
 
   return (
     

@@ -142,11 +142,20 @@ app.get('/callback', (req, res) => {
                               };
 
                               request.get(topArtistsOptions, async (error, response, body) => {
-                                  if (!error && response.statusCode === 200) {
-                                      const topArtists = body.items;
+                                if (!error && response.statusCode === 200) {
+                                  const topArtists = body.items.map(artist => ({
+                                    id: artist.id,
+                                    name: artist.name,
+                                    genres: artist.genres,
+                                  }));
+                  
+                                      
                                       console.log('Top Artists: Obtained');
 
-                                      res.redirect(`http://localhost:5173/onboarding`);
+                                      res.redirect(
+                                        `http://localhost:5173/onboarding?spotifyId=${spotifyUserId}&topArtists=${encodeURIComponent(JSON.stringify(topArtists))}`
+                                      );
+                      
 
 
                                       for (const artist of topArtists) {
