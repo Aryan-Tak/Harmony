@@ -17,6 +17,7 @@ function OnboardingForm() {
     photo: null,
   });
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [ imageUrl,setImageUrl] = useState('')
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -24,6 +25,8 @@ function OnboardingForm() {
       const file = files[0];
       if (file) {
         setPhotoPreview(URL.createObjectURL(file));
+        // setPhotoPreview(file)
+
         setFormData({
           ...formData,
           [name]: file,
@@ -39,6 +42,21 @@ function OnboardingForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/dfnpoaqe2/image/upload`,
+        file
+      )
+      const imageUrl = res.data.secure_url;
+      setImageUrl(imageUrl);
+
+      await axios.post('http://localhost:5174/profile', { imageUrl });
+
+
+    } catch (error) {
+      console.log("Error in image uploding");
+      
+    }
     try {
       const formDataToSend = new FormData();
       for (const key in formData) {
@@ -204,13 +222,7 @@ function OnboardingForm() {
           Create Account
         </button>
       </form>
-      {/* <button
-          onClick={handleSubmit}
-          type="submit"
-          className="w-full p-2 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded font-bold neumorphism-input"
-        >
-          Create Account
-      </button> */}
+
     </div>
   );
 }

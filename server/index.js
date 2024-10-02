@@ -193,31 +193,25 @@ app.post('/profile', async (req, res) => {
     return res.status(400).send('No files were uploaded.');
   }  
   const { firstName, lastName, spotifyUserId , dob, bio, gender } = req.body;
-  const image = req.files.photo;    
+  const { imageUrl } = req.body;   
+
 
 
   try {
 
-    const userProfile = await storage.createFile(
-        process.env.APPWRITE_BUCKETID,
-        '66dca10e003b1eef5caa',
-        Math.random().toString(8),
-        InputFile.fromBuffer(buffer,image.data , image.name)
-    );
     const userResult = await driver.executeQuery(
         'MATCH (u:User {spotifyId: $spotifyUserId}) RETURN u',
         { spotifyUserId }
     );
     
-    
+     
 
     if (userResult.records.length > 0) {
           res.status(400).json({ error: 'User already exists' });
     } else {
-        const photoPath = req.file.path;
         await driver.executeQuery(
-          'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, photoPath: $photoPath})',
-          { spotifyUserId,  firstName, lastName, dob, bio, gender, photoPath }
+          'CREATE (u:User { spotifyId: $spotifyUserId,firstName: $firstName, lastName: $lastName, dob: $dob, bio: $bio, gender: $gender, url: $imageUrl})',
+          { spotifyUserId,  firstName, lastName, dob, bio, gender, imageUrl }
           );
         res.status(201).send('User profile created');
       }
